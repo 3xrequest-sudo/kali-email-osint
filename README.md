@@ -92,7 +92,7 @@ nano "raw_emails/$(date +%F)_raw-description.eml"
 ### 3. Run the Full Pipeline
 Point the master wrapper at your newly captured `.eml` file:
 ```bash
-./run_osint.sh "raw_emails/\$(date +%F)_raw-description.eml"
+./run_osint.sh "raw_emails/your_raw_file.eml"
 ```
 All outputs—including `abuse_report_draft.txt`—are saved inside `<filename>_report/`.
 
