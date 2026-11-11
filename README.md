@@ -85,7 +85,7 @@ chmod 600 my_emails.txt
 ### 2. Capture a Suspicious Email
 View the raw message source (`Show Original` / `View Source`) in your mail client, copy it to your clipboard, and paste it directly into a timestamped file inside `raw_emails/`:
 ```bash
-nano "raw_emails/\$(date +%F)_raw-description.eml"
+nano "raw_emails/$(date +%F)_raw-description.eml"
 ```
 *(Save and exit `nano` with `Ctrl+O`, `Enter`, `Ctrl+X`).*
 
