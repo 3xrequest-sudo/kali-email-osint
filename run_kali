@@ -1,0 +1,9 @@
+#!/bin/bash
+
+docker run -it --rm \
+  --name kali-email-osint \
+  --network bridge \
+  -w /home/kali/analysis \
+  -v /home/parker/docker/phish_analysis:/home/kali/analysis \
+  kali-osint-ready:latest /bin/bash
+
