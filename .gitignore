@@ -1,5 +1,8 @@
 # Private personal email configuration (NEVER commit)
 my_emails.txt
+.env
+.gitignore
+.env.*
 
 # Raw email samples & generated report directories
 raw_emails/
@@ -10,3 +13,7 @@ raw_emails/
 database/ 
 Old_bits/ 
 attachments/
+
+# Environment variables & secrets (NEVER commit)
+.env
+.env.*
