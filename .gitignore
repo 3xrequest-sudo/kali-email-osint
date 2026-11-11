@@ -20,3 +20,6 @@ attachments/
 # Local container build scripts
 Dockerfile
 run_kali
+
+# SSH keys (NEVER commit)
+.ssh/
