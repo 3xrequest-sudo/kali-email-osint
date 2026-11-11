@@ -17,3 +17,6 @@ attachments/
 # Environment variables & secrets (NEVER commit)
 .env
 .env.*
+# Local container build scripts
+Dockerfile
+run_kali

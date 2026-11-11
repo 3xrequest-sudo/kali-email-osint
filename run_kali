@@ -1,7 +1,0 @@
-#!/bin/bash
-docker run -it --rm \
-  --name kali-phish-tracker \
-  --network bridge \
-  -v ~/docker/phish_analysis:/home/kali/analysis \
-  kali-custom /bin/bash
-
