@@ -1,0 +1,12 @@
+# Private personal email configuration (NEVER commit)
+my_emails.txt
+
+# Raw email samples & generated report directories
+raw_emails/
+*_report/
+*.eml
+*.txt
+!README.md
+database/ 
+Old_bits/ 
+attachments/
