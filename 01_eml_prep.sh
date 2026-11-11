@@ -40,21 +40,21 @@ DOMAINS_FILE="$REPORT_DIR/target_domains.txt"
 
 perl -MMIME::QuotedPrint -ne 'print decode_qp($_)' "$REDACTED_FILE" | \
     sed 's/%3A/:/Ig; s/%2F/\//Ig; s/%3F/?/Ig; s/%3D/=/Ig; s/%26/\&/Ig' | \
-    grep -Eio '[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}' | \
+    grep -Eio '[a-zA-Z0-9][a-zA-Z0-9.-]*\.[a-zA-Z]{2,}' | \
     tr '[:upper:]' '[:lower:]' | \
-    grep -Ev '(^|\.)(yahoo\.com|yahoo\.com\.au|hotmail\.com|outlook\.com|gmail\.com|google\.com|google\.ca|google\.com\.au|1e100\.net|w3\.org|schema\.org)$' | \
+    grep -Ev '(^|\.)(aol\.com|yahoo\.com|yahoo\.com\.au|hotmail\.com|outlook\.com|gmail\.com|google\.com|google\.ca|google\.com\.au|1e100\.net|w3\.org|schema\.org|javamail\.tomcat)$' | \
     grep -Ev '^(smtp\.mailfrom|header\.from|header\.i|header\.s)$' | \
     grep -Ev '\.(png|jpg|jpeg|gif|css|js|html|htm|eml|txt|pdf|zip)$' | \
     sort -u > "$DOMAINS_FILE"
 
 echo "[+] Extracted $(wc -l < "$DOMAINS_FILE") unique target domains to: target_domains.txt"
 
-
-# 3. Extract and filter valid public IPv4 addresses from routing headers & URLs
+# 3. Extract and filter valid public IPv4 addresses (ignoring reversed PTR hostnames)
 IPS_FILE="$REPORT_DIR/target_ips.txt"
 
 grep -Ei '^(Received:|X-Originating-Ip:|Authentication-Results:|.*https?://)' "$REDACTED_FILE" | \
-    grep -Eio '\b((25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])\.){3}(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])\b' | \
+    grep -Eio '(^|[[:space:]\[\(\<])((25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])\.){3}(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])([[:space:]\]\)\>]|$)' | \
+    tr -d ' []()<>' | \
     grep -Ev '^(127\.|10\.|192\.168\.|172\.(1[6-9]|2[0-9]|3[0-1])\.|0\.|255\.)' | \
     sort -u > "$IPS_FILE"
 
