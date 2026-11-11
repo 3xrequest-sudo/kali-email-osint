@@ -6,7 +6,6 @@ if [ -z "$1" ]; then
 fi
 
 REPORT_DIR="${1%/}"
-# Locate the redacted .eml file inside the report folder
 EML_FILE=$(find "$REPORT_DIR" -maxdepth 1 -name "*_redacted.eml" | head -n 1)
 
 if [ -z "$EML_FILE" ] || [ ! -f "$EML_FILE" ]; then
@@ -16,6 +15,7 @@ fi
 
 TRIAGE_REPORT="$REPORT_DIR/file_triage_report.txt"
 ATTACH_DIR="$REPORT_DIR/attachments"
+REMOTE_CLAM_CONF="/home/kali/analysis/clamd_remote.conf"
 
 echo "[+] Starting file & attachment triage in $REPORT_DIR..."
 
@@ -39,7 +39,6 @@ if grep -Eiq 'filename=' "$EML_FILE"; then
     mkdir -p "$ATTACH_DIR"
     echo "[!] Attachment markers detected! Extracting to $ATTACH_DIR..."
 
-    # Use ripmime if installed, otherwise fallback to munpack
     if command -v ripmime >/dev/null 2>&1; then
         ripmime -i "$EML_FILE" -d "$ATTACH_DIR" --no-nameless
     elif command -v munpack >/dev/null 2>&1; then
@@ -48,7 +47,6 @@ if grep -Eiq 'filename=' "$EML_FILE"; then
         echo "[-] Note: Install 'ripmime' or 'mpack' to auto-extract attachments." >> "$TRIAGE_REPORT"
     fi
 
-    # Hash and identify the true file type of every extracted attachment
     {
         echo -e "\n[+] Extracted Attachments Analysis (Magic Bytes & SHA-256):"
         for item in "$ATTACH_DIR"/*; do
@@ -60,15 +58,16 @@ if grep -Eiq 'filename=' "$EML_FILE"; then
     } >> "$TRIAGE_REPORT"
 fi
 
-# Optional: Run ClamAV only if databases exist and clamscan is present
-if command -v clamscan >/dev/null 2>&1 && [ -d /var/lib/clamav ] && [ "$(ls -A /var/lib/clamav 2>/dev/null)" ]; then
-    echo "[*] Running local ClamAV scan..."
+# Stream file to the standalone ClamAV container if clamdscan and config exist
+if command -v clamdscan >/dev/null 2>&1 && [ -f "$REMOTE_CLAM_CONF" ]; then
+    echo "[*] Streaming file to standalone ClamAV container..."
     {
-        echo -e "\n[+] ClamAV Scan Result:"
-        clamscan --no-summary "$EML_FILE"
+        echo -e "\n[+] ClamAV Container Scan Result:"
+        clamdscan --config-file="$REMOTE_CLAM_CONF" --stream --no-summary "$EML_FILE" 2>&1
     } >> "$TRIAGE_REPORT"
 else
-    echo -e "\n[+] ClamAV Scan Result: Skipped (No active local signature database found)." >> "$TRIAGE_REPORT"
+    echo "[-] Note: clamdscan missing (run: apt update && apt install -y clamav-daemon)"
+    echo -e "\n[+] ClamAV Scan Result: Skipped (install 'clamav-daemon' to enable container scanning)." >> "$TRIAGE_REPORT"
 fi
 
 echo "[+] Triage complete. Saved to: $TRIAGE_REPORT"
